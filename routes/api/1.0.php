@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\Cashbox\Base;
 use App\Http\Controllers\Cashbox\Info;
+use App\Http\Controllers\ClientsController;
+use App\Http\Controllers\ContractsController;
 use App\Http\Controllers\Incomes\Parking;
 use Illuminate\Support\Facades\Route;
 
@@ -222,5 +224,13 @@ Route::middleware('auth:sanctum')->group(function () {
 
         /** Удаляет услугу */
         Route::post('drop', [App\Http\Controllers\Tenants\AdditionalServices::class, "drop"]);
+    });
+
+    Route::group(['prefix' => "clients"], function () {
+        Route::post('create', [ClientsController::class, "create"]);
+    });
+
+    Route::group(['prefix' => "contracts"], function () {
+        Route::post('create', [ContractsController::class, "create"]);
     });
 });
