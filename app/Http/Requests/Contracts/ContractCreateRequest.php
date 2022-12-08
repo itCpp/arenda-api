@@ -24,7 +24,7 @@ class ContractCreateRequest extends FormRequest
     public function rules()
     {
         return [
-            'client_id' => "required|integer",
+            'client_id' => "required",
             'type' => "required",
             'number' => "required",
             'date' => "required|date",
@@ -33,6 +33,21 @@ class ContractCreateRequest extends FormRequest
             'day_payment' => "nullable",
             'price' => "required|numeric",
             'comment' => "nullable",
+        ];
+    }
+
+    public function attributes()
+    {
+        return [
+            'client_id' => "клиент",
+            'type' => "тип договора",
+            'number' => "номер договора",
+            'date' => "дата договора",
+            'date_start' => "дата начала",
+            'date_stop' => "дата окончания",
+            'day_payment' => "день оплаты",
+            'price' => "стоимость",
+            'comment' => "комментарий",
         ];
     }
 }

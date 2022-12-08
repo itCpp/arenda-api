@@ -229,6 +229,7 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::group(['prefix' => "clients"], function () {
+        Route::get('/', [ClientsController::class, "index"]);
         Route::post('create', [ClientsController::class, "create"]);
     });
 
