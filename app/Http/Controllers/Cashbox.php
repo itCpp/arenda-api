@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Cashbox\Statistics;
+use App\Http\Controllers\Employees\Salaries;
 use App\Http\Controllers\Expenses\Types;
 use App\Http\Controllers\Incomes\Purposes;
+use App\Http\Controllers\Tenants\AdditionalServices;
+use App\Models\AdditionalService;
 use App\Models\CashboxTransaction;
 use App\Models\Employee;
 use App\Models\ExpenseSubtype;
@@ -46,7 +49,8 @@ class Cashbox extends Controller
                                         $types[$row->expense_type_id][] = $row->id;
                                     });
 
-                                Employee::where(DB::raw("CONCAT(surname,' ',name,' ',middle_name)"), 'like', "%{$search['name']}%")
+                                Employee::withTrashed()
+                                    ->where(DB::raw("CONCAT(surname,' ',name,' ',middle_name)"), 'like', "%{$search['name']}%")
                                     ->get()
                                     ->each(function ($row) use (&$types) {
                                         $types[1][] = $row->id;
@@ -63,7 +67,8 @@ class Cashbox extends Controller
 
                                 $types = [];
 
-                                IncomeSource::where('name', 'like', "%{$search['name']}%")
+                                IncomeSource::withTrashed()
+                                    ->where('name', 'like', "%{$search['name']}%")
                                     ->get()
                                     ->each(function ($row) use (&$types) {
                                         $types[] = $row->id;
@@ -138,8 +143,17 @@ class Cashbox extends Controller
 
         $row->purpose = $purpose;
 
-        if ($row->source and $row->income_source_service_id) {
+        $row->sub_comment = $row->comment;
+
+        if ($row->source and $row->income_source_service_id and $row->purpose_pay != 6) {
             $row->comment = $row->source->services->where('id', $row->income_source_service_id)->all()[0]->name ?? null;
+        } else if ($row->purpose_pay == 6 and $row->income_source_service_id) {
+
+            $row->comment = AdditionalService::find($row->income_source_service_id)->name ?? null;
+
+            if ($row->sub_comment) {
+                $row->comment = trim((string) $row->comment . " (" . $row->sub_comment . ")");
+            }
         }
 
         return $row;
@@ -342,7 +356,14 @@ class Cashbox extends Controller
             'expense_subtypes' => $expense_subtypes,
             'income_sources' => $income_sources,
             'income_source_parkings' => $income_source_parkings ?? [],
+            'income_source_services' => (new AdditionalServices)->list($request, true, true),
             'purpose' => Purposes::getAll(),
+            'purpose_salary' => Salaries::getPurposeSalariesOptions(),
         ]);
+    }
+
+    public function serviceList(Request $request, AdditionalServices $services)
+    {
+        return $services->list($request, true);
     }
 }

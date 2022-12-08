@@ -26,6 +26,7 @@ class Employee extends Model
         'phone',
         'telegram_id',
         'email',
+        'hidden',
         'personal_data',
     ];
 
@@ -35,6 +36,7 @@ class Employee extends Model
      * @var array<string, string>
      */
     protected $casts = [
+        'hidden' => 'boolean',
         'personal_data' => 'array',
     ];
 

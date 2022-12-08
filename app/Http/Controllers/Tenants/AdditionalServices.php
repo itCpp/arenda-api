@@ -49,15 +49,19 @@ class AdditionalServices extends Controller
      * @param  \Illuminate\Http\Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function list(Request $request)
+    public function list(Request $request, $is_one = false, $to_array = false)
     {
-        $rows = AdditionalService::get()
+        $rows = AdditionalService::whereIsOne($is_one)
+            ->get()
             ->map(function ($row) {
                 return [
                     'value' => $row->id,
                     'text' => $row->name,
                 ];
             });
+
+        if ($to_array)
+            return $rows->toArray();
 
         return response()->json([
             'rows' => $rows,

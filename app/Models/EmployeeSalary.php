@@ -19,6 +19,7 @@ class EmployeeSalary extends Model
         'salary',
         'is_one_day',
         'salary_prev',
+        'is_one_day_prev',
         'start_date',
     ];
 
@@ -29,5 +30,6 @@ class EmployeeSalary extends Model
      */
     protected $casts = [
         'is_one_day' => 'boolean',
+        'is_one_day_prev' => 'boolean',
     ];
 }

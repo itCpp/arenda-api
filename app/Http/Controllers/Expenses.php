@@ -144,10 +144,11 @@ class Expenses extends Controller
         $row->sum = $sum;
         $row->is_expense = true;
         $row->type_pay = $request->type_pay;
+        $row->purpose_pay = (int) $request->purpose_pay;
         $row->expense_type_id = $request->expense_type_id;
         $row->expense_subtype_id = $request->expense_subtype_id;
         $row->date = $request->date ?: now()->format("Y-m-d");
-        $row->month = now()->create($row->date)->format("Y-m");
+        $row->month = $request->month ?: now()->create($row->date)->format("Y-m");
         $row->user_id = $row->user_id ?: $request->user()->id;
         $row->period_start = $request->period_start;
         $row->period_stop = $request->period_stop;

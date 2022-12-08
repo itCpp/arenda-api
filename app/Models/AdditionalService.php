@@ -17,5 +17,10 @@ class AdditionalService extends Model
     protected $fillable = [
         'name',
         'icon',
+        'is_one',
+    ];
+
+    protected $casts = [
+        'is_one' => true,
     ];
 }

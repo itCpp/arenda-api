@@ -54,8 +54,10 @@ class Salaries extends Controller
         $salary->salary = (float) $request->salary;
         $salary->is_one_day = (bool) $request->is_one_day;
 
-        if (!$find)
+        if (!$find) {
             $salary->salary_prev = $row->salary ?? 0;
+            $salary->is_one_day_prev = (bool) ($row->salary_one_day ?? null);
+        }
 
         $salary->save();
 
@@ -72,6 +74,44 @@ class Salaries extends Controller
     }
 
     /**
+     * Типы оплат
+     * 
+     * @return array
+     */
+    public static function getPurposePays()
+    {
+        return [
+            1 => "АВАНС",
+            2 => "ЗП",
+            3 => "ПРЕМИЯ",
+        ];
+    }
+
+    /**
+     * Типы оплат
+     * 
+     * @return array
+     */
+    public static function getPurposeSalariesOptions()
+    {
+        return [
+            ['key' => 0, 'text' => "Аванс", 'value' => 1, 'name' => "АВАНС"],
+            ['key' => 1, 'text' => "Зарплата", 'value' => 2, 'name' => "ЗП"],
+            ['key' => 2, 'text' => "Премия", 'value' => 3, 'name' => "ПРЕМИЯ"],
+        ];
+    }
+
+    /**
+     * Типы расчетов зарплаты
+     * 
+     * @return array
+     */
+    public static function salaryCountPaysIds()
+    {
+        return [1, 2];
+    }
+
+    /**
      * Выдача получки
      * 
      * @param  \Illuminate\Http\Request $request
@@ -82,8 +122,10 @@ class Salaries extends Controller
         $start = now()->create($request->period_start)->format("d");
         $stop = now()->create($request->period_stop)->format("d.m");
 
+        $purpose = $this->getPurposePays()[$request->purpose_pay] ?? "АВАНС";
+
         $request->merge([
-            'name' => "АВАНС {$start}-{$stop}",
+            'name' => "{$purpose} {$start}-{$stop}",
         ]);
 
         return (new Expenses)->save($request);

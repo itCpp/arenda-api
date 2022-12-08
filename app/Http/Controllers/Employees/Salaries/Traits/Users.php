@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Employees\Salaries;
+namespace App\Http\Controllers\Employees\Salaries\Traits;
 
 use App\Http\Controllers\Employees;
 use App\Models\Employee;
@@ -34,6 +34,7 @@ trait Users
                             ->orWhere('employee_work_dates.work_stop', null);
                     });
             })
+            ->whereHidden(false)
             ->orderBy('employee_work_dates.work_start')
             ->distinct()
             ->get()

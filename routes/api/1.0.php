@@ -208,6 +208,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
         /** Данные из кассы */
         Route::get('info', [Info::class, 'index']);
+
+        Route::get('service/list', [App\Http\Controllers\Cashbox::class, "serviceList"]);
     });
 
     /** Маршрутизация дополнительных услуг */

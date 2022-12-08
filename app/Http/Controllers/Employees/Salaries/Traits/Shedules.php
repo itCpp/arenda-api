@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Employees\Salaries;
+namespace App\Http\Controllers\Employees\Salaries\Traits;
 
 use App\Models\EmployeeShedule;
 

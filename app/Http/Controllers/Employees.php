@@ -24,7 +24,12 @@ class Employees extends Controller
         $rows = Employee::lazy()
             ->map(function ($row) {
                 return $this->employee($row);
-            });
+            })
+            ->sortBy([
+                ["job_title", "asc"],
+                ["fullname", "asc"],
+            ])
+            ->values();
 
         return response()->json([
             'rows' => $rows ?? [],
