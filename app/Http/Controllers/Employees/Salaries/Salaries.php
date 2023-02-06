@@ -90,6 +90,10 @@ class Salaries
             'days' => $request->days,
         ];
 
+        if ($request->toDuty) {
+            return $this->getDutyArray();
+        }
+
         return $this->data;
     }
 
@@ -103,6 +107,23 @@ class Salaries
     public static function recountDutyUser($user_id, $date)
     {
         
+    }
+
+    /**
+     * Выдает массив остатков
+     * 
+     * @param array
+     */
+    public function getDutyArray()
+    {
+        return collect($this->data['rows'] ?? [])
+            ->map(fn ($item) => [
+                'id' => $item['id'],
+                'duty_now' => $item['duty_now'],
+                'month' => $this->data['dates']['month'] ?? null,
+                'period' => $this->data['dates']['start'] ?? null,
+            ])
+            ->toArray();
     }
 
     /**

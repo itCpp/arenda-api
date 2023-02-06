@@ -9,4 +9,18 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class EmployeeDuty extends Model
 {
     use HasFactory, SoftDeletes;
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = [
+        'employee_id',
+        'money',
+        'money_first',
+        'money_payd',
+        'month',
+        'period',
+    ];
 }

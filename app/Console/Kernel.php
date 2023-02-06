@@ -24,6 +24,10 @@ class Kernel extends ConsoleKernel
         $schedule->command('pays:fine')
             ->dailyAt("23:59")
             ->runInBackground();
+
+        $schedule->command('employee:duty')
+            ->lastDayOfMonth("23:59")
+            ->runInBackground();
     }
 
     /**
