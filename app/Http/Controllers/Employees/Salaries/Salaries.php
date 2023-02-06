@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Employees\Salaries;
 
+use App\Models\EmployeeDuty;
 use Illuminate\Http\Request;
 
 class Salaries
@@ -43,23 +44,41 @@ class Salaries
      */
     public static function index(Request $request)
     {
-        if ($request->has('period')) {
+        $request = self::prepareDatesRequestDate($request);
 
-            $period = now()->create($request->period);
+        return response()->json(
+            (new static)->get($request)
+        );
+    }
 
-            if ((int) $period->format("j") >= 16) {
-                $start = now()->create($request->period ?: now())->format("Y-m-16");
-                $stop = now()->create($request->period ?: now())->format("Y-m-t");
-            } else {
-                $start = now()->create($request->period ?: now())->format("Y-m-01");
-                $stop = now()->create($request->period ?: now())->format("Y-m-15");
-            }
-        } else {
-            $start = now()->create($request->month ?: now())->startOfMonth()->format("Y-m-d");
-            $stop = now()->create($request->month ?: now())->endOfMonth()->format("Y-m-d");
-        }
+    /**
+     * Формирует данные с датами
+     * 
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Request
+     */
+    public static function prepareDatesRequestDate(Request $request)
+    {
+        // if ($request->has('period')) {
 
-        $days = now()->create($start)->subDay()->diff($stop)->days ?? 0;
+        //     $period = now()->create($request->period);
+
+        //     if ((int) $period->format("j") >= 16) {
+        //         $start = now()->create($request->period ?: now())->format("Y-m-16");
+        //         $stop = now()->create($request->period ?: now())->format("Y-m-t");
+        //     } else {
+        //         $start = now()->create($request->period ?: now())->format("Y-m-01");
+        //         $stop = now()->create($request->period ?: now())->format("Y-m-15");
+        //     }
+        // } else {
+        //     $start = now()->create($request->month ?: now())->startOfMonth()->format("Y-m-d");
+        //     $stop = now()->create($request->month ?: now())->endOfMonth()->format("Y-m-d");
+        // }
+
+        $start = now()->create($request->month ?: now())->startOfMonth()->format("Y-m-d");
+        $stop = now()->create($request->month ?: now())->endOfMonth()->format("Y-m-d");
+
+        $days = now()->create($start)->subDay()->diff(now()->create($stop))->days ?? 0;
 
         $request->merge([
             'month' => now()->create($request->month ?: now())->format("Y-m"),
@@ -69,9 +88,7 @@ class Salaries
             'days' => $days,
         ]);
 
-        return response()->json(
-            (new static)->get($request)
-        );
+        return $request;
     }
 
     /**
@@ -101,12 +118,48 @@ class Salaries
      * Пересчет остатков
      * 
      * @param  int  $user_id
-     * @param  string  $date
+     * @param  string  $month
      * @return null
      */
-    public static function recountDutyUser($user_id, $date)
+    public static function recountDutyUser($user_id, $month)
     {
-        
+        $request = request();
+        $month = now()->create($month ?? now())->format("Y-m");
+
+        $start = now()->create($month);
+
+        \Log::debug("DUTY {$user_id} {$month}");
+
+        while ($start < now()->startOfMonth()) {
+
+            $request->merge([
+                'id' => $user_id,
+                'month' => $start->copy()->format("Y-m"),
+                'toDuty' => true,
+            ]);
+
+            $request = self::prepareDatesRequestDate($request);
+
+            $data = (new static)->get($request);
+
+            foreach ($data as $row) {
+
+                $m = now()->create($row['month'] ?? now())->startOfMonth()->format("Y-m-d");
+                $p = now()->create($row['period'] ?? now())->startOfMonth()->format("Y-m-d");
+
+                $duty = EmployeeDuty::firstOrCreate(
+                    ['employee_id' => $row['id'], 'period' => $p, 'month' => $m],
+                    ['money_first' => $row['duty_now']]
+                );
+
+                $duty->money = $row['duty_now'];
+                $duty->save();
+
+                \Log::debug("SALARY {$row['id']} {$m} DATA", $row);
+            }
+
+            $start->addMonth();
+        }
     }
 
     /**
