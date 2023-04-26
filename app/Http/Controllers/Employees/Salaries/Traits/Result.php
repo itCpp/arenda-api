@@ -105,6 +105,12 @@ trait Result
         /** Долги за предыдущие периоды */
         $row->duty = round($this->data['data']['duties'][$row->id] ?? 0, 2);
 
+        /** Налог */
+        $row->tax = $this->data['data']['tax'][$row->id] ?? 0;
+
+        /** Штраф */
+        $row->fine = $this->data['data']['fine'][$row->id] ?? 0;
+
         return $row;
     }
 
