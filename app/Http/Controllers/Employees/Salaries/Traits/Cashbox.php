@@ -40,6 +40,7 @@ trait Cashbox
             })
             ->where(function ($query) {
                 $query->whereNotIn('purpose_pay', Salaries::salaryCountPaysIds())
+                    ->whereNotIn('purpose_pay',  [4, 5])
                     ->where('purpose_pay', '!=', null);
             })
             ->groupBy('expense_subtype_id')

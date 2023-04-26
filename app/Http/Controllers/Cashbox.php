@@ -21,6 +21,14 @@ class Cashbox extends Controller
 {
     use Statistics;
 
+    protected $get_source;
+
+    protected $get_parking;
+
+    protected $get_expense_type;
+
+    protected $get_expense_sub_type;
+
     /**
      * Вывод данных на главной странице
      * 
@@ -192,6 +200,10 @@ class Cashbox extends Controller
                 'color' => "orange",
                 'icon' => $row->expense_type->icon ?? null,
             ];
+        }
+
+        if ($row->purpose_pay == 5) {
+            $row->sum *= -1;
         }
 
         return $row;

@@ -19,14 +19,14 @@ trait Statistics
     {
         $data = [];
 
-        CashboxTransaction::selectRaw('sum(sum) as sum, type_pay, is_income, date')
+        CashboxTransaction::selectRaw('sum(sum) as sum, type_pay, is_income, date, purpose_pay')
             ->when(is_array($dates), function ($query) use ($dates) {
                 $query->whereIn('date', $dates);
             })
             ->when(is_string($dates) and is_string($date_to), function ($query) use ($dates, $date_to) {
                 $query->whereBetween('date', [$dates, $date_to]);
             })
-            ->groupBy(['type_pay', 'is_income', 'date'])
+            ->groupBy(['type_pay', 'is_income', 'date', 'purpose_pay'])
             ->get()
             ->each(function ($row) use (&$data) {
 
@@ -40,6 +40,7 @@ trait Statistics
                 if ($row->is_income == false && $row->purpose_pay == 5) {
                     $row->is_income = true;
                     $row->is_expense = false;
+                    $row->sum *= -1;
                 }
 
                 if ($row->is_income) {
