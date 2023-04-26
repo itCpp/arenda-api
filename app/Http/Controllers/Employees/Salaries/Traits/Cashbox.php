@@ -50,6 +50,36 @@ trait Cashbox
 
         $this->data['data']['premiums'] = $premiums ?? [];
 
+        CashboxTransaction::selectRaw('sum(sum) as sum, expense_subtype_id as user_id')
+            ->whereIsExpense(true)
+            ->whereExpenseTypeId(1)
+            ->where(function ($query) {
+                $query->where('month', now()->create(request()->start ?: now())->format("Y-m"));
+            })
+            ->where('purpose_pay', 4)
+            ->groupBy('expense_subtype_id')
+            ->get()
+            ->each(function ($row) use (&$tax) {
+                $tax[$row->user_id] = abs($row->sum);
+            });
+
+        $this->data['data']['tax'] = $tax ?? [];
+
+        CashboxTransaction::selectRaw('sum(sum) as sum, expense_subtype_id as user_id')
+            ->whereIsExpense(true)
+            ->whereExpenseTypeId(1)
+            ->where(function ($query) {
+                $query->where('month', now()->create(request()->start ?: now())->format("Y-m"));
+            })
+            ->where('purpose_pay', 5)
+            ->groupBy('expense_subtype_id')
+            ->get()
+            ->each(function ($row) use (&$fine) {
+                $fine[$row->user_id] = abs($row->sum);
+            });
+
+        $this->data['data']['fine'] = $fine ?? [];
+
         return $this;
     }
 }

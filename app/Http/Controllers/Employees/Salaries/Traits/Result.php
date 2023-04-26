@@ -65,7 +65,13 @@ trait Result
         $row->toPayoff = $this->getToPayoff($row);
 
         /** Остаток получки */
-        $row->balance = round($row->toPayoff - $row->prepayment + $row->duty);
+        $row->balance = round(
+            $row->toPayoff
+                - $row->prepayment
+                + $row->duty
+                - ($row->tax ?? 0)
+                + ($row->fine ?? 0)
+        );
 
         /** Долг на конец периода */
         $row->duty_now = $row->balance - $row->duty;
@@ -192,6 +198,10 @@ trait Result
             $parts[$i] = $is_one_day ? 0 : $salary_part;
             $parts_one_day[$i] = $is_one_day;
         }
+
+        $row->shedule = collect($row->shedule ?? [])
+            ->filter(fn ($item) => is_numeric($item['type'] ?? null))
+            ->toArray();
 
         foreach ($row->shedule ?? [] as $day => $data) {
 
