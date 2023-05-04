@@ -37,7 +37,7 @@ trait Statistics
 
                 $stat = &$data[$date];
 
-                if ($row->is_income) {
+                if (!$row->is_income) {
                     if (in_array($row->purpose_pay, [4, 5])) {
                         $row->sum = 0;
                     }
