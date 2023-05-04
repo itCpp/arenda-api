@@ -70,7 +70,7 @@ trait Result
                 - $row->prepayment
                 + $row->duty
                 - ($row->tax ?? 0)
-                + ($row->fine ?? 0)
+                - ($row->fine ?? 0)
         );
 
         /** Долг на конец периода */
