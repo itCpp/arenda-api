@@ -37,11 +37,16 @@ trait Statistics
 
                 $stat = &$data[$date];
 
-                if ($row->is_income == false && $row->purpose_pay == 5) {
-                    $row->is_income = true;
-                    $row->is_expense = false;
-                    $row->sum *= -1;
+                if ($row->is_income) {
+                    if (in_array($row->purpose_pay, [4, 5])) {
+                        $row->sum = 0;
+                    }
                 }
+
+                // if ($row->is_income == false && $row->purpose_pay == 5) {
+                //     $row->is_income = true;
+                //     $row->is_expense = false;
+                // }
 
                 if ($row->is_income) {
 
